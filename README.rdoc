@@ -1,19 +1,23 @@
 = gene_ontology
 
-Description goes here.
+Parses gene ontology .obo files, links terms through is_a and provides methods
+to find levels and traverse the tree.
 
-== Contributing to gene_ontology
- 
-* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
-* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
-* Fork the project
-* Start a feature/bugfix branch
-* Commit and push until you are happy with your contribution
-* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
-* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+== Examples
+
+    go = GeneOntology.new.from_file("gene_ontology.obo")
+    go.header # => a GeneOntology::Header object
+    go.id_to_term # => a hash from GO id to the GeneOntology::Term
+    some_term = go.id_to_term.values.first
+
+    # traverse the tree upwards, beginning with the current Term
+    some_term.each do |term|
+      term.name =~ /Plasma Membrane/i
+    end
+    some_term.level  # => how many levels down from the top 3
+                     # molecular_function, biol comp. etc are level 0
 
 == Copyright
 
-Copyright (c) 2011 John Prince. See LICENSE.txt for
-further details.
+See LICENSE
 
