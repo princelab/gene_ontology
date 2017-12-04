@@ -74,7 +74,8 @@ class GeneOntology
   # process...)
   class Term
     include Enumerable
-    attr_accessor *%w(id level alt_id intersection_of replaced_by created_by creation_date disjoint_from relationship name namespace def subset comment is_obsolete synonym xref consider is_a).map(&:to_sym)
+#    attr_accessor *%w(id level alt_id intersection_of replaced_by created_by creation_date disjoint_from relationship name namespace def subset comment is_obsolete synonym xref consider is_a).map(&:to_sym)
+    attr_accessor *%w(id level alt_id intersection_of replaced_by created_by creation_date disjoint_from relationship name namespace def subset comment is_obsolete synonym xref consider is_a property_value).map(&:to_sym)
 
     PLURAL = [:synonym, :xref, :consider, :is_a]
     def initialize
