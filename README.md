@@ -22,9 +22,14 @@ Or install it yourself as:
 ## Usage
 
 ```
-go = GeneOntology.from_file("gene_ontology.obo")
+require 'gene_ontology'
+
+# download from http://purl.obolibrary.org/obo/go.obo
+go = GeneOntology.from_file("go.obo")
+
 go.header # => a GeneOntology::Header object
 go.id_to_term # => a hash from GO id to the GeneOntology::Term
+
 some_term = go.id_to_term.values.first
 
 # traverse the tree upwards, beginning with the current Term
