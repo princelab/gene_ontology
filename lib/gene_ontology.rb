@@ -1,11 +1,29 @@
+require 'gene_ontology/version'
 
-# typical usage: 
-#     
-#     terms = GeneOntology.new.from_file(filename)
 class GeneOntology
+
+  EXPECTED_HEADER_FIELDS = %i(
+    format-version
+    date
+    saved-by
+    auto-generated-by
+    synonymtypedef
+    systematic_synonym
+    default-namespace
+    remark
+    ontology
+    subsetdefs
+    other
+  )
 
   attr_accessor :header
   attr_accessor :id_to_term
+
+  class << self
+    def from_file(filename)
+      new.from_file(filename)
+    end
+  end
 
   # returns self
   def from_file(filename)
@@ -35,7 +53,7 @@ class GeneOntology
   # turns is_a links from strings to actual GeneOntology objects
   # returns id_to_term
   def self.link!(terms)
-    id_to_term = {} 
+    id_to_term = {}
     terms.each {|term| id_to_term[term.id] = term }
     terms.each do |term|
       term.is_a.map! {|id| id_to_term[id] }
@@ -74,13 +92,36 @@ class GeneOntology
   # process...)
   class Term
     include Enumerable
-#    attr_accessor *%w(id level alt_id intersection_of replaced_by created_by creation_date disjoint_from relationship name namespace def subset comment is_obsolete synonym xref consider is_a).map(&:to_sym)
-    attr_accessor *%w(id level alt_id intersection_of replaced_by created_by creation_date disjoint_from relationship name namespace def subset comment is_obsolete synonym xref consider is_a property_value).map(&:to_sym)
+
+    FIELDS = %i(
+      id
+      level
+      alt_id
+      intersection_of
+      replaced_by
+      created_by
+      creation_date
+      disjoint_from
+      relationship
+      name
+      namespace
+      def
+      subset
+      comment
+      is_obsolete
+      synonym
+      xref
+      consider
+      is_a
+      property_value
+    )
+
+    attr_accessor(*FIELDS)
 
     PLURAL = [:synonym, :xref, :consider, :is_a]
     def initialize
       PLURAL.each {|k| self.send("#{k}=", []) }
-      self
+      @level = nil
     end
 
     def inspect
@@ -90,7 +131,7 @@ class GeneOntology
     # starting with that term, traverses upwards in the tree
     def each(&block)
       block.call(self)
-      is_a.each do |term| 
+      is_a.each do |term|
         term.each(&block)
       end
     end
@@ -109,9 +150,10 @@ class GeneOntology
     # returns the number of levels below the top (top 3 categories [mf, bp,
     # cc] are at level 0)
     def find_level
-      if @level ; @level
+      if @level
+        @level
       else
-        @level = 
+        @level =
           if @is_a.size == 0 ; 0
           else
             @is_a.map {|term| term.find_level }.min + 1
@@ -122,7 +164,7 @@ class GeneOntology
 
   # subsetdefs is an array, other is a hash for any key/value pairs not
   # already defined here
-  Header = Struct.new( *%w(format-version date saved-by auto-generated-by synonymtypedef systematic_synonym default-namespace remark ontology subsetdefs other).map(&:to_sym) )
+  Header = Struct.new(*EXPECTED_HEADER_FIELDS)
   class Header
     def initialize(*args)
       super(*args)
